@@ -1,4 +1,3 @@
-
 // Google Places API Key (replace with your actual API key)
 const GOOGLE_PLACES_API_KEY = "AIzaSyCPVHfqr6zFjaR5ZPYP8NSMESGkxWJ9QfI";
 
@@ -17,6 +16,13 @@ const finalChoice = document.getElementById("final-choice");
 const participantInputSection = document.getElementById("participant-input-section");
 const startVotingButton = document.getElementById("start-voting");
 const votingSection = document.getElementById("voting-section");
+const zipCodeInput = document.createElement("input"); // For manual ZIP code input
+
+// Append ZIP Code Input to Instructions
+zipCodeInput.type = "text";
+zipCodeInput.className = "form-control mb-3";
+zipCodeInput.placeholder = "Enter ZIP Code (optional)";
+document.querySelector(".alert").appendChild(zipCodeInput);
 
 // Fetch Restaurants from Google Places API
 async function fetchRestaurants(location) {
@@ -37,6 +43,27 @@ async function fetchRestaurants(location) {
     }
   } catch (error) {
     console.error("Error fetching restaurants:", error);
+  }
+}
+
+// Geocode ZIP Code to Coordinates
+async function geocodeZipCode(zipCode) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${zipCode}&key=${GOOGLE_PLACES_API_KEY}`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.status === "OK") {
+      const location = data.results[0].geometry.location;
+      return `${location.lat},${location.lng}`;
+    } else {
+      console.error("Error geocoding ZIP code:", data.status);
+      alert("Invalid ZIP Code. Please try again.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    alert("Error processing ZIP Code. Please check your connection.");
+    return null;
   }
 }
 
@@ -115,7 +142,7 @@ function initializeParticipantInput() {
 }
 
 // Start Voting Process
-function startVoting() {
+async function startVoting() {
   sessionData.participants = [];
   for (let i = 1; i <= 8; i++) {
     const input = document.getElementById(`participant-${i}`);
@@ -127,12 +154,24 @@ function startVoting() {
     alert("Please enter at least one participant name to proceed.");
     return;
   }
+
+  // Determine location
+  let location = null;
+  const zipCode = zipCodeInput.value.trim();
+  if (zipCode) {
+    location = await geocodeZipCode(zipCode);
+  }
+  if (!location) {
+    alert("Please provide a valid ZIP Code.");
+    return;
+  }
+
   participantInputSection.classList.add("d-none");
   startVotingButton.classList.add("d-none");
   votingSection.classList.remove("d-none");
   sessionData.currentParticipantIndex = 0;
   updateParticipantVotingUI();
-  renderRestaurants();
+  fetchRestaurants(location);
 }
 
 // Initialize
