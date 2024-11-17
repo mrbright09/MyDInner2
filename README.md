@@ -1,1 +1,2 @@
-# MyDInner2
+# Dinner-Picker
+Project #1

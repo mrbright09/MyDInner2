@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dinner Picker</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+</head>
+
+<body class="bg-dark text-white">
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Dinner Picker</h1>
+
+        <!-- Instructions -->
+        <div class="alert alert-info text-center">
+            Select up to 8 participants and vote for your favorite dinner option.
+        </div>
+
+        <!-- Voting Section -->
+        <div id="voting-section" class="row g-3 justify-content-center mb-4">
+            <div class="col-md-6">
+                <h3 class="text-center">Restaurant Options</h3>
+                <ul id="restaurant-list" class="list-group">
+                    <!-- Dynamic Restaurant Options -->
+                </ul>
+            </div>
+
+            <div class="col-md-6">
+                <h3 class="text-center">Participants</h3>
+                <div id="participant-list" class="list-group">
+                    <!-- Dynamic Participants -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="d-none text-center mt-5">
+            <h2>Final Decision</h2>
+            <p id="final-choice" class="lead"></p>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/javascript/app.js"></script>
+</body>
+
+</html>
