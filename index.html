@@ -25,6 +25,12 @@
         </div>
         <button id="start-voting" class="btn btn-success mb-4" onclick="startVoting()">Start Voting</button>
 
+        <!-- Sharable Link and QR Code -->
+        <div class="text-center mb-4">
+            <a id="invite-link" class="d-block mb-2 text-info" target="_blank"></a>
+            <div id="qr-code-container"></div>
+        </div>
+
         <!-- Voting Section -->
         <div id="voting-section" class="row g-3 justify-content-center">
             <div class="col-md-6">
@@ -51,6 +57,7 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/javascript/qrcode.min.js"></script> <!-- QR Code Library -->
     <script src="assets/javascript/app.js"></script>
 </body>
 
