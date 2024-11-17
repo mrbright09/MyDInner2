@@ -1,6 +1,6 @@
 
 // Google Places API Key (replace with your actual API key)
-const GOOGLE_PLACES_API_KEY = "YOUR_GOOGLE_PLACES_API_KEY";
+const GOOGLE_PLACES_API_KEY = "AIzaSyCPVHfqr6zFjaR5ZPYP8NSMESGkxWJ9QfI";
 
 // Global Variables
 const sessionData = {
@@ -15,6 +15,7 @@ const participantList = document.getElementById("participant-list");
 const resultsSection = document.getElementById("results-section");
 const finalChoice = document.getElementById("final-choice");
 const inviteLinkDisplay = document.getElementById("invite-link");
+const qrCodeContainer = document.getElementById("qr-code-container");
 const participantInputSection = document.getElementById("participant-input-section");
 const startVotingButton = document.getElementById("start-voting");
 
@@ -28,6 +29,17 @@ function displayInviteLink() {
   const link = `${window.location.origin}/vote?session=${sessionData.sessionId}`;
   inviteLinkDisplay.textContent = link;
   inviteLinkDisplay.href = link;
+  generateQRCode(link);
+}
+
+// Generate QR Code
+function generateQRCode(link) {
+  qrCodeContainer.innerHTML = "";
+  const qrCode = new QRCode(qrCodeContainer, {
+    text: link,
+    width: 128,
+    height: 128,
+  });
 }
 
 // Fetch Restaurants from Google Places API
@@ -137,7 +149,7 @@ function initializeParticipantInput() {
     const input = document.createElement("input");
     input.type = "text";
     input.className = "form-control mb-2";
-    input.placeholder = `Enter name for Participant ${i}`;
+    input.placeholder = `Enter name for Participant ${i} (Optional)`;
     input.id = `participant-${i}`;
     participantInputSection.appendChild(input);
   }
@@ -148,11 +160,13 @@ function startVoting() {
   sessionData.participants = [];
   for (let i = 1; i <= 8; i++) {
     const input = document.getElementById(`participant-${i}`);
-    if (input.value.trim() === "") {
-      alert(`Please enter a name for Participant ${i}.`);
-      return;
+    if (input.value.trim() !== "") {
+      sessionData.participants.push({ id: i, name: input.value.trim(), vote: null });
     }
-    sessionData.participants.push({ id: i, name: input.value.trim(), vote: null });
+  }
+  if (sessionData.participants.length === 0) {
+    alert("Please enter at least one participant name to proceed.");
+    return;
   }
   participantInputSection.classList.add("d-none");
   startVotingButton.classList.add("d-none");
