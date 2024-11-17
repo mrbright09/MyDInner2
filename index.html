@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,8 +19,14 @@
             Select up to 8 participants and vote for your favorite dinner option.
         </div>
 
+        <!-- Participant Input Section -->
+        <div id="participant-input-section" class="mb-4">
+            <!-- Input fields for participant names will be dynamically added here -->
+        </div>
+        <button id="start-voting" class="btn btn-success mb-4" onclick="startVoting()">Start Voting</button>
+
         <!-- Voting Section -->
-        <div id="voting-section" class="row g-3 justify-content-center mb-4">
+        <div id="voting-section" class="row g-3 justify-content-center">
             <div class="col-md-6">
                 <h3 class="text-center">Restaurant Options</h3>
                 <ul id="restaurant-list" class="list-group">
