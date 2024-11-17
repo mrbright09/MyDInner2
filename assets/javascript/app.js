@@ -6,7 +6,7 @@ const GOOGLE_PLACES_API_KEY = "AIzaSyCPVHfqr6zFjaR5ZPYP8NSMESGkxWJ9QfI";
 const sessionData = {
   restaurants: [],
   participants: [],
-  sessionId: generateSessionId(),
+  currentParticipantIndex: 0,
 };
 
 // DOM Elements
@@ -14,33 +14,9 @@ const restaurantList = document.getElementById("restaurant-list");
 const participantList = document.getElementById("participant-list");
 const resultsSection = document.getElementById("results-section");
 const finalChoice = document.getElementById("final-choice");
-const inviteLinkDisplay = document.getElementById("invite-link");
-const qrCodeContainer = document.getElementById("qr-code-container");
 const participantInputSection = document.getElementById("participant-input-section");
 const startVotingButton = document.getElementById("start-voting");
-
-// Generate Session ID
-function generateSessionId() {
-  return Math.random().toString(36).substring(2, 15);
-}
-
-// Display Sharable Link
-function displayInviteLink() {
-  const link = `${window.location.origin}/vote?session=${sessionData.sessionId}`;
-  inviteLinkDisplay.textContent = link;
-  inviteLinkDisplay.href = link;
-  generateQRCode(link);
-}
-
-// Generate QR Code
-function generateQRCode(link) {
-  qrCodeContainer.innerHTML = "";
-  const qrCode = new QRCode(qrCodeContainer, {
-    text: link,
-    width: 128,
-    height: 128,
-  });
-}
+const votingSection = document.getElementById("voting-section");
 
 // Fetch Restaurants from Google Places API
 async function fetchRestaurants(location) {
@@ -64,7 +40,7 @@ async function fetchRestaurants(location) {
   }
 }
 
-// Render Restaurants
+// Render Restaurants for Voting
 function renderRestaurants() {
   restaurantList.innerHTML = "";
   sessionData.restaurants.forEach((restaurant) => {
@@ -76,34 +52,28 @@ function renderRestaurants() {
   });
 }
 
-// Handle Voting
+// Handle Voting by Participants
 function handleVote(restaurantId) {
-  const participant = sessionData.participants.find((p) => !p.vote);
-  if (!participant) {
-    alert("All participants have voted!");
+  const currentParticipant = sessionData.participants[sessionData.currentParticipantIndex];
+  currentParticipant.vote = restaurantId;
+
+  // Move to the next participant or finalize results
+  if (sessionData.currentParticipantIndex < sessionData.participants.length - 1) {
+    sessionData.currentParticipantIndex++;
+    updateParticipantVotingUI();
+  } else {
     displayResults();
-    return;
-  }
-  participant.vote = restaurantId;
-  renderParticipants();
-  if (sessionData.participants.every((p) => p.vote)) {
-    displayResults(); // Show results once all votes are cast
   }
 }
 
-// Render Participants
-function renderParticipants() {
-  participantList.innerHTML = "";
-  sessionData.participants.forEach((participant) => {
-    const li = document.createElement("li");
-    li.className = "list-group-item";
-    const restaurant = sessionData.restaurants.find((r) => r.id === participant.vote);
-    li.textContent = `${participant.name}: ${restaurant ? restaurant.name : "No vote yet"}`;
-    participantList.appendChild(li);
-  });
+// Update the Voting UI for the Current Participant
+function updateParticipantVotingUI() {
+  const currentParticipant = sessionData.participants[sessionData.currentParticipantIndex];
+  const votingHeader = document.getElementById("voting-header");
+  votingHeader.textContent = `It's ${currentParticipant.name}'s turn to vote!`;
 }
 
-// Display Results
+// Display Results After Voting
 function displayResults() {
   const voteCounts = sessionData.restaurants.map((r) => ({
     ...r,
@@ -115,7 +85,7 @@ function displayResults() {
   logResults();
 }
 
-// Log Results
+// Log Results for Download
 function logResults() {
   const log = {
     timestamp: new Date().toISOString(),
@@ -129,17 +99,6 @@ function logResults() {
     })),
   };
   console.log("Session Log:", log);
-  downloadLog(log);
-}
-
-// Download Log as JSON
-function downloadLog(log) {
-  const blob = new Blob([JSON.stringify(log, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `session_${sessionData.sessionId}.json`;
-  a.click();
 }
 
 // Initialize Participants Input
@@ -155,7 +114,7 @@ function initializeParticipantInput() {
   }
 }
 
-// Start Voting
+// Start Voting Process
 function startVoting() {
   sessionData.participants = [];
   for (let i = 1; i <= 8; i++) {
@@ -170,8 +129,10 @@ function startVoting() {
   }
   participantInputSection.classList.add("d-none");
   startVotingButton.classList.add("d-none");
-  renderParticipants();
-  displayInviteLink();
+  votingSection.classList.remove("d-none");
+  sessionData.currentParticipantIndex = 0;
+  updateParticipantVotingUI();
+  renderRestaurants();
 }
 
 // Initialize
