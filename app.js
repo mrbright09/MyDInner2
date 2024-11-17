@@ -1,6 +1,6 @@
 
 // Google Places API Key (replace with your actual API key)
-const GOOGLE_PLACES_API_KEY = "YOUR_GOOGLE_PLACES_API_KEY";
+const GOOGLE_PLACES_API_KEY = "AIzaSyCPVHfqr6zFjaR5ZPYP8NSMESGkxWJ9QfI";
 
 // Global Variables
 const sessionData = {
