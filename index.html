@@ -1,60 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <title>Dinner Picker</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyDinner — Let Your Face Decide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
+<body>
 
-<body class="bg-dark text-white">
-    <div class="container py-5">
-        <h1 class="text-center mb-4">My Dinner 2</h1>
+  <!-- Fixed header (hidden on step 1) -->
+  <header id="app-header" style="display:none;">
+    <div class="header-inner">
+      <div class="header-logo">MyDinner</div>
+      <div class="step-indicators">
+        <div class="step-indicator current" data-step="1" title="Cuisines">1</div>
+        <div class="step-line-h"></div>
+        <div class="step-indicator" data-step="2" title="Location">2</div>
+        <div class="step-line-h"></div>
+        <div class="step-indicator" data-step="3" title="Camera">3</div>
+        <div class="step-line-h"></div>
+        <div class="step-indicator" data-step="4" title="Reactions">4</div>
+        <div class="step-line-h"></div>
+        <div class="step-indicator" data-step="5" title="Results">5</div>
+      </div>
+    </div>
+  </header>
 
-        <!-- Instructions -->
-        <div class="alert alert-info text-center">
-            Select up to 8 participants and vote for your favorite dinner option.
+  <div id="app">
+
+    <!-- ==================== STEP 1: CUISINE SELECTION ==================== -->
+    <div id="step-1" class="step active">
+      <div class="container py-5">
+        <div class="text-center mb-5 hero-section">
+          <h1 class="app-title">MyDinner</h1>
+          <p class="app-subtitle">Let your face decide what's for dinner</p>
         </div>
 
-        <!-- Participant Input Section -->
-        <div id="participant-input-section" class="mb-4">
-            <!-- Input fields for participant names will be dynamically added here -->
-        </div>
-        <button id="start-voting" class="btn btn-success mb-4" onclick="startVoting()">Start Voting</button>
+        <h2 class="step-heading text-center mb-2">What are you in the mood for?</h2>
+        <p class="text-center step-hint mb-4">Pick one or more cuisine types</p>
 
-        <!-- Voting Section -->
-        <div id="voting-section" class="row g-3 justify-content-center d-none">
-            <div class="col-12 text-center">
-                <h3 id="voting-header" class="mb-3">Participant Voting</h3>
-            </div>
-            <div class="col-md-6">
-                <h3 class="text-center">Restaurant Options</h3>
-                <ul id="restaurant-list" class="list-group">
-                    <!-- Dynamic Restaurant Options -->
-                </ul>
-            </div>
-
-            <div class="col-md-6">
-                <h3 class="text-center">Participants</h3>
-                <div id="participant-list" class="list-group">
-                    <!-- Dynamic Participants -->
-                </div>
-            </div>
+        <div class="cuisine-grid" id="cuisine-grid">
+          <!-- Populated by JS -->
         </div>
 
-        <!-- Results Section -->
-        <div id="results-section" class="d-none text-center mt-5">
-            <h2>Final Decision</h2>
-            <p id="final-choice" class="lead"></p>
+        <div class="text-center mt-5">
+          <button id="btn-find-restaurants" class="btn btn-primary btn-xl" onclick="proceedToLocation()" disabled>
+            Find Restaurants Near Me &rarr;
+          </button>
         </div>
+      </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/javascript/app.js"></script>
-</body>
+    <!-- ==================== STEP 2: LOCATION ==================== -->
+    <div id="step-2" class="step">
+      <div class="container py-5">
+        <div class="step-center-card">
+          <div class="step-icon">📍</div>
+          <h2 class="step-heading mt-3">Finding restaurants near you</h2>
+          <p class="step-hint">We'll search for the best spots based on your taste</p>
 
+          <div id="location-status" class="mt-4">
+            <div id="location-spinner" class="loading-spinner mb-3"></div>
+            <p id="location-message" class="status-msg">Detecting your location&hellip;</p>
+          </div>
+
+          <div id="manual-location" class="d-none mt-4">
+            <p class="step-hint">Enter your ZIP code or city:</p>
+            <div class="manual-location-row">
+              <input type="text" id="zip-input" class="form-control dark-input" placeholder="e.g. 90210 or Austin, TX" maxlength="40">
+              <button class="btn btn-primary" onclick="useManualLocation()">Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 3: CAMERA SETUP ==================== -->
+    <div id="step-3" class="step">
+      <div class="container py-5">
+        <div class="step-center-card wide">
+          <div class="step-icon">📸</div>
+          <h2 class="step-heading mt-3">We'll read your reactions</h2>
+          <p class="step-hint">We'll show you restaurants one by one and detect your facial expressions to find your perfect match. No data is stored or sent anywhere.</p>
+
+          <div class="camera-preview-wrap mx-auto mt-4">
+            <video id="setup-video" class="camera-preview d-none" autoplay muted playsinline></video>
+            <div id="camera-placeholder" class="camera-placeholder">
+              <div class="camera-big-icon">📷</div>
+              <p>Camera preview will appear here</p>
+            </div>
+          </div>
+
+          <p id="camera-message" class="status-msg mt-3">Click below to allow camera access</p>
+
+          <div id="model-loading" class="d-none mt-3">
+            <p class="step-hint small">Loading AI models&hellip;</p>
+            <div class="progress model-progress-bar">
+              <div id="model-progress" class="progress-bar bg-warning progress-bar-animated progress-bar-striped" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex flex-column align-items-center gap-3">
+            <button id="btn-allow-camera" class="btn btn-primary btn-xl" onclick="setupCamera()">
+              Allow Camera Access
+            </button>
+            <button id="btn-start-analysis" class="btn btn-success btn-xl d-none" onclick="startAnalysis()">
+              I'm Ready &mdash; Start Analyzing! 🎬
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 4: REACTION ANALYSIS ==================== -->
+    <div id="step-4" class="step">
+      <div class="container py-4">
+        <div class="analysis-header text-center mb-4">
+          <span class="restaurant-counter">Restaurant <span id="current-restaurant-num">1</span> of <span id="total-restaurants">5</span></span>
+          <p class="step-hint mt-1">React naturally — we're watching 👀</p>
+        </div>
+
+        <div class="analysis-layout">
+
+          <!-- Restaurant Card -->
+          <div id="restaurant-card" class="restaurant-card">
+            <div id="restaurant-photo-area" class="restaurant-photo-area">
+              <div class="photo-fallback">🍽️</div>
+            </div>
+            <div class="restaurant-card-body">
+              <div id="restaurant-cuisine-tag" class="cuisine-tag">Restaurant</div>
+              <h2 id="restaurant-name" class="restaurant-name">Loading&hellip;</h2>
+              <div class="restaurant-rating">
+                <span id="restaurant-stars"></span>
+                <span id="rating-value" class="rating-num ms-2"></span>
+              </div>
+              <p id="restaurant-address" class="restaurant-address">Address</p>
+            </div>
+          </div>
+
+          <!-- Camera + Reaction Panel -->
+          <div class="reaction-panel">
+            <div class="camera-feed-wrap">
+              <video id="analysis-video" class="camera-feed" autoplay muted playsinline></video>
+              <div id="no-face-msg" class="no-face-overlay d-none">
+                <span>👤 Center your face in camera</span>
+              </div>
+            </div>
+
+            <div id="countdown-display" class="countdown-wrap d-none">
+              <div class="countdown-label">Get ready&hellip;</div>
+              <div id="countdown-number" class="countdown-number">3</div>
+            </div>
+
+            <div id="reaction-display" class="reaction-box d-none">
+              <div class="reaction-top">
+                <span id="reaction-emoji" class="reaction-emoji">😐</span>
+                <div>
+                  <div class="reaction-label-sm">Detected reaction</div>
+                  <div id="reaction-text" class="reaction-dominant">Neutral</div>
+                </div>
+              </div>
+              <div class="reaction-bars mt-3">
+                <div class="bar-row">
+                  <span>😊 Happy</span>
+                  <div class="bar-track"><div id="bar-happy" class="bar-fill bar-pos" style="width:0%"></div></div>
+                </div>
+                <div class="bar-row">
+                  <span>😲 Surprised</span>
+                  <div class="bar-track"><div id="bar-surprised" class="bar-fill bar-neu" style="width:0%"></div></div>
+                </div>
+                <div class="bar-row">
+                  <span>😐 Neutral</span>
+                  <div class="bar-track"><div id="bar-neutral" class="bar-fill bar-neu" style="width:0%"></div></div>
+                </div>
+                <div class="bar-row">
+                  <span>🤢 Disgusted</span>
+                  <div class="bar-track"><div id="bar-disgusted" class="bar-fill bar-neg" style="width:0%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="analyzing-progress" class="d-none mt-2">
+              <div class="progress analysis-progress">
+                <div id="analysis-progress-bar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width:0%"></div>
+              </div>
+              <p class="step-hint small text-center mt-1">Analyzing your reaction&hellip;</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 5: RESULTS ==================== -->
+    <div id="step-5" class="step">
+      <div class="container py-5">
+        <div class="text-center mb-5">
+          <div class="step-icon">🎉</div>
+          <h2 class="step-heading mt-3">Your dinner is decided!</h2>
+          <p class="step-hint">Based on your facial reactions, you should eat at&hellip;</p>
+        </div>
+
+        <div id="winner-card" class="winner-card mx-auto">
+          <div class="winner-badge">YOUR PICK</div>
+          <div id="winner-photo-area" class="winner-photo-area">
+            <div class="winner-photo-fallback">🏆</div>
+          </div>
+          <div class="winner-body text-center">
+            <h2 id="winner-name" class="winner-name"></h2>
+            <div id="winner-rating" class="winner-rating mb-1"></div>
+            <p id="winner-address" class="winner-address text-muted"></p>
+            <a id="winner-maps-link" class="btn btn-primary btn-lg mt-3" href="#" target="_blank" rel="noopener noreferrer">
+              Get Directions 🗺️
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-5 pb-3">
+          <h4 class="text-center mb-4 section-label">All Reaction Scores</h4>
+          <div id="all-results" class="results-list mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="text-center mt-4 pb-5">
+          <button class="btn btn-outline-light btn-lg" onclick="restartApp()">
+            ↩ Start Over
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- #app -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.14/dist/face-api.js"></script>
+  <script src="assets/javascript/app.js"></script>
+</body>
 </html>
