@@ -6,7 +6,7 @@
 
 // ---------- Configuration ----------
 const CONFIG = {
-  GOOGLE_API_KEY:      'AIzaSyCPVHfqr6zFjaR5ZPYP8NSMESGkxWJ9QfI',
+  GOOGLE_API_KEY:      (window.APP_CONFIG || {}).GOOGLE_MAPS_API_KEY || '',  // set in config.js (see SETUP.md),
   SEARCH_RADIUS:       2400,          // meters
   REACTION_DURATION:   5000,          // ms per restaurant
   COUNTDOWN_SECONDS:   3,
